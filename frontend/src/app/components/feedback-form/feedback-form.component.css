@@ -1,0 +1,102 @@
+.feedback-form-container {
+  @apply w-full max-w-2xl mx-auto;
+}
+
+.feedback-form {
+  @apply space-y-6;
+}
+
+.form-group {
+  @apply space-y-2;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700;
+}
+
+.form-input,
+.form-textarea {
+  @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200;
+}
+
+.form-input.error,
+.form-textarea.error {
+  @apply border-red-500 focus:ring-red-500 focus:border-red-500;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.rating-container {
+  @apply flex items-center space-x-4;
+}
+
+.stars {
+  @apply flex space-x-1;
+}
+
+.star-btn {
+  @apply p-1 rounded-full transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+.star-icon {
+  @apply w-8 h-8 text-gray-300 transition-colors duration-200;
+}
+
+.star-btn.active .star-icon,
+.star-btn:hover .star-icon {
+  @apply text-yellow-400;
+}
+
+.rating-text {
+  @apply text-sm font-medium text-gray-600;
+}
+
+.submit-btn {
+  @apply w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg text-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+.submit-btn:disabled {
+  @apply opacity-50 cursor-not-allowed hover:scale-100;
+}
+
+.submit-btn.loading {
+  @apply cursor-wait;
+}
+
+.error-message {
+  @apply text-sm text-red-600 mt-1;
+}
+
+.success-message {
+  @apply flex items-center space-x-2 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800;
+}
+
+.success-icon {
+  @apply w-5 h-5 text-green-600;
+}
+
+.error-message-container {
+  @apply flex items-center space-x-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800;
+}
+
+.error-icon {
+  @apply w-5 h-5 text-red-600;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .feedback-form-container {
+    @apply px-4;
+  }
+  
+  .rating-container {
+    @apply flex-col items-start space-y-2;
+  }
+  
+  .star-icon {
+    @apply w-6 h-6;
+  }
+}

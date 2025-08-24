@@ -12,19 +12,33 @@ const dbConfig = {
   queueLimit: 0
 };
 
-// Create connection pool
-const pool = mysql.createPool(dbConfig);
+// Create connection pool without database initially
+const initialConfig = {
+  ...dbConfig,
+  database: undefined // Don't specify database initially
+};
+
+const initialPool = mysql.createPool(initialConfig);
 
 // Initialize database and create tables
 async function initializeDatabase() {
   try {
-    // Test connection
-    const connection = await pool.getConnection();
+    // Test connection without specifying database
+    const connection = await initialPool.getConnection();
     console.log('✅ Database connection established');
 
-    // Create database if it doesn't exist
-    await connection.execute(`CREATE DATABASE IF NOT EXISTS ${dbConfig.database}`);
-    await connection.execute(`USE ${dbConfig.database}`);
+    // Create database if it doesn't exist (use query instead of execute)
+    await connection.query(`CREATE DATABASE IF NOT EXISTS ${dbConfig.database}`);
+    console.log('✅ Database created/verified');
+
+    // Close initial connection
+    connection.release();
+
+    // Create new pool with the specific database
+    const pool = mysql.createPool(dbConfig);
+    
+    // Get connection with the specific database
+    const dbConnection = await pool.getConnection();
 
     // Create feedback table
     const createTableQuery = `
@@ -32,21 +46,44 @@ async function initializeDatabase() {
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         message TEXT NOT NULL,
-        rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+        rating INT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `;
 
-    await connection.execute(createTableQuery);
+    await dbConnection.execute(createTableQuery);
     console.log('✅ Feedback table created/verified');
 
-    // Create indexes for better performance
-    await connection.execute('CREATE INDEX IF NOT EXISTS idx_rating ON feedback(rating)');
-    await connection.execute('CREATE INDEX IF NOT EXISTS idx_created_at ON feedback(created_at)');
-    console.log('✅ Database indexes created');
+    // Create indexes for better performance (handle IF NOT EXISTS gracefully)
+    try {
+      await dbConnection.execute('CREATE INDEX idx_rating ON feedback(rating)');
+      console.log('✅ Rating index created');
+    } catch (indexError) {
+      if (indexError.code === 'ER_DUP_KEYNAME') {
+        console.log('✅ Rating index already exists');
+      } else {
+        console.log('⚠️ Rating index creation skipped:', indexError.message);
+      }
+    }
 
-    connection.release();
+    try {
+      await dbConnection.execute('CREATE INDEX idx_created_at ON feedback(created_at)');
+      console.log('✅ Created_at index created');
+    } catch (indexError) {
+      if (indexError.code === 'ER_DUP_KEYNAME') {
+        console.log('✅ Created_at index already exists');
+      } else {
+        console.log('⚠️ Created_at index creation skipped:', indexError.message);
+      }
+    }
+
+    console.log('✅ Database indexes verified');
+    dbConnection.release();
+    
+    // Store the pool for later use
+    global.dbPool = pool;
+    
     return true;
   } catch (error) {
     console.error('❌ Database initialization failed:', error);
@@ -56,7 +93,7 @@ async function initializeDatabase() {
 
 // Get database pool
 function getPool() {
-  return pool;
+  return global.dbPool || initialPool;
 }
 
 module.exports = {

@@ -84,44 +84,4 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /feedback/stats - Get feedback statistics
-router.get('/stats', async (req, res) => {
-  try {
-    const pool = getPool();
-    
-    const [statsResult] = await pool.execute(`
-      SELECT 
-        COUNT(*) as total_feedback,
-        AVG(rating) as average_rating,
-        MIN(rating) as min_rating,
-        MAX(rating) as max_rating,
-        COUNT(CASE WHEN rating >= 4 THEN 1 END) as positive_feedback,
-        COUNT(CASE WHEN rating <= 2 THEN 1 END) as negative_feedback
-      FROM feedback
-    `);
-
-    const [ratingDistribution] = await pool.execute(`
-      SELECT rating, COUNT(*) as count
-      FROM feedback
-      GROUP BY rating
-      ORDER BY rating
-    `);
-
-    res.json({
-      success: true,
-      data: {
-        ...statsResult[0],
-        rating_distribution: ratingDistribution
-      }
-    });
-  } catch (error) {
-    console.error('Error fetching feedback stats:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch feedback statistics',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-});
-
 module.exports = router; 

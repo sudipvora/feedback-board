@@ -177,5 +177,39 @@ describe('Validation Middleware', () => {
       expect(mockReq.body.message).toBe('Great product!');
       expect(mockReq.body.rating).toBe(5);
     });
+    
+    it('should return error for name longer than 255 characters', () => {
+      mockReq.body = {
+        name: 'a'.repeat(256),
+        message: 'Valid message',
+        rating: 5
+      };
+
+      validateFeedback(mockReq, mockRes, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        error: 'Name must be less than 255 characters'
+      });
+      expect(mockNext).not.toHaveBeenCalled();
+    });
+
+    it('should return error for message longer than 10,000 characters', () => {
+      mockReq.body = {
+        name: 'John Doe',
+        message: 'a'.repeat(10001),
+        rating: 5
+      };
+
+      validateFeedback(mockReq, mockRes, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        error: 'Message must be less than 10,000 characters'
+      });
+      expect(mockNext).not.toHaveBeenCalled();
+    });
   });
 }); 

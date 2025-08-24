@@ -1,0 +1,33 @@
+.feedback-board {
+  @apply min-h-screen bg-gray-50;
+}
+
+.main-content {
+  @apply max-w-7xl mx-auto px-4 py-16;
+}
+
+.content-grid {
+  @apply grid grid-cols-1 lg:grid-cols-2 gap-8;
+}
+
+.feedback-form-section,
+.feedback-list-section {
+  @apply bg-white rounded-lg shadow-lg p-8;
+}
+
+.feedback-form-section h2,
+.feedback-list-section h2 {
+  @apply text-2xl font-bold text-gray-900 mb-6;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .main-content {
+    @apply px-4 py-8;
+  }
+  
+  .feedback-form-section,
+  .feedback-list-section {
+    @apply p-6;
+  }
+}

@@ -1,0 +1,68 @@
+<div class="feedback-list-container">
+  <!-- Loading State - Show when loading during initial load -->
+  <div *ngIf="(initialLoad$ | async) && (loading$ | async)" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Loading feedback...</p>
+  </div>
+
+  <!-- Empty State - Show when not loading and no feedback -->
+  <div *ngIf="!(loading$ | async) && (!(feedback$ | async) || (feedback$ | async)?.length === 0)" class="empty-state">
+    <svg class="empty-icon" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+    </svg>
+    <h3>No feedback yet</h3>
+    <p>Be the first to share your thoughts!</p>
+  </div>
+
+  <!-- Feedback List - Show when not loading and has feedback -->
+  <div *ngIf="!(loading$ | async) && (feedback$ | async) && ((feedback$ | async)?.length || 0) > 0" class="feedback-content">
+    <!-- Sorting Controls -->
+    <div class="sorting-controls">
+      <div class="sort-group">
+        <label for="sortBy" class="sort-label">Sort by:</label>
+        <select id="sortBy" class="sort-select" (change)="onSortChange($event)">
+          <option *ngFor="let option of sortOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+      
+      <div class="sort-group">
+        <label for="sortOrder" class="sort-label">Order:</label>
+        <select id="sortOrder" class="sort-select" (change)="onSortChange($event)">
+          <option value="desc">Descending</option>
+          <option value="asc">Ascending</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Feedback Count -->
+    <div class="feedback-count">
+      <span class="count-number">{{ (feedback$ | async)?.length || 0 }}</span>
+      <span class="count-label">feedback entries</span>
+    </div>
+
+    <!-- Feedback Cards -->
+    <div class="feedback-list">
+      <div *ngFor="let item of feedback$ | async" class="feedback-card">
+        <div class="feedback-header">
+          <div class="feedback-info">
+            <h3 class="feedback-name">{{ item.name }}</h3>
+            <span class="feedback-date">{{ formatDate(item.created_at) }}</span>
+          </div>
+          <div class="rating-badge" [class]="getRatingBadgeClass(item.rating)">
+            {{ item.rating }}
+          </div>
+        </div>
+        
+        <p class="feedback-message">{{ item.message }}</p>
+        
+        <div class="feedback-rating">
+          <span *ngFor="let star of [1, 2, 3, 4, 5]" class="star" [class]="star <= item.rating ? 'filled' : 'empty'">
+            ★
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -6,8 +6,7 @@ import { tap, catchError } from 'rxjs/operators';
 import { 
   Feedback, 
   FeedbackResponse, 
-  FeedbackListResponse, 
-  FeedbackStatsResponse,
+  FeedbackListResponse,
   SortField,
   SortOrder 
 } from '../models/feedback.model';
@@ -16,14 +15,14 @@ import {
   providedIn: 'root'
 })
 export class FeedbackService {
-  private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = 'http://localhost:3100/api';
   private feedbackSubject = new BehaviorSubject<Feedback[]>([]);
-  private statsSubject = new BehaviorSubject<any>(null);
   private loadingSubject = new BehaviorSubject<boolean>(false);
+  private initialLoadSubject = new BehaviorSubject<boolean>(true);
 
   public feedback$ = this.feedbackSubject.asObservable();
-  public stats$ = this.statsSubject.asObservable();
   public loading$ = this.loadingSubject.asObservable();
+  public initialLoad$ = this.initialLoadSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -36,7 +35,6 @@ export class FeedbackService {
         if (response.success && response.data) {
           const currentFeedback = this.feedbackSubject.value;
           this.feedbackSubject.next([response.data, ...currentFeedback]);
-          this.loadStats(); // Refresh stats after new submission
         }
       }),
       tap(() => this.loadingSubject.next(false)),
@@ -49,7 +47,10 @@ export class FeedbackService {
 
   // Get all feedback with optional sorting
   getFeedback(sortBy: SortField = 'created_at', order: SortOrder = 'desc'): Observable<FeedbackListResponse> {
-    this.loadingSubject.next(true);
+    // Always show loading for the first request
+    if (this.initialLoadSubject.value) {
+      this.loadingSubject.next(true);
+    }
     
     const params = new HttpParams()
       .set('sortBy', sortBy)
@@ -59,6 +60,7 @@ export class FeedbackService {
       tap(response => {
         if (response.success) {
           this.feedbackSubject.next(response.data);
+          this.initialLoadSubject.next(false);
         }
       }),
       tap(() => this.loadingSubject.next(false)),
@@ -69,48 +71,17 @@ export class FeedbackService {
     );
   }
 
-  // Get feedback statistics
-  getStats(): Observable<FeedbackStatsResponse> {
-    return this.http.get<FeedbackStatsResponse>(`${this.apiUrl}/feedback/stats`).pipe(
-      tap(response => {
-        if (response.success) {
-          this.statsSubject.next(response.data);
-        }
-      }),
-      catchError(error => {
-        throw error;
-      })
-    );
-  }
-
   // Load feedback data
   loadFeedback(sortBy: SortField = 'created_at', order: SortOrder = 'desc'): void {
-    this.getFeedback(sortBy, order).subscribe();
+    this.getFeedback(sortBy, order);
   }
 
-  // Load statistics
-  loadStats(): void {
-    this.getStats().subscribe();
-  }
-
-  // Refresh all data
+  // Refresh data
   refreshData(sortBy: SortField = 'created_at', order: SortOrder = 'desc'): void {
     this.loadFeedback(sortBy, order);
-    this.loadStats();
   }
 
-  // Get current feedback from cache
-  getCurrentFeedback(): Feedback[] {
-    return this.feedbackSubject.value;
-  }
-
-  // Get current stats from cache
-  getCurrentStats(): any {
-    return this.statsSubject.value;
-  }
-
-  // Check if currently loading
-  isLoading(): boolean {
-    return this.loadingSubject.value;
+  get baseUrl(): string {
+    return this.apiUrl;
   }
 } 

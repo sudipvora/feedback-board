@@ -1,0 +1,27 @@
+<header class="bg-white shadow-sm border-b">
+  <div class="max-w-7xl mx-auto px-4 py-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+        </svg>
+        <h1 class="text-2xl font-bold text-gray-900">Feedback Board</h1>
+      </div>
+      <nav class="flex space-x-6">
+        <a routerLink="/" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Home</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main>
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="bg-gray-50 border-t mt-16">
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="text-center text-gray-600">
+      <p>&copy; 2025 Feedback Board. Simple feedback collection system.</p>
+    </div>
+  </div>
+</footer>

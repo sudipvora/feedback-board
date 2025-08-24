@@ -8,7 +8,7 @@ const feedbackRoutes = require('./routes/feedback');
 const { initializeDatabase } = require('./config/database');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3100;
 
 // Security middleware
 app.use(helmet());

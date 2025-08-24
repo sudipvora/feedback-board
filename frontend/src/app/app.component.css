@@ -1,0 +1,11 @@
+/* Simple header styling */
+header {
+  @apply bg-white shadow-sm border-b;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  header h1 {
+    @apply text-xl;
+  }
+}
